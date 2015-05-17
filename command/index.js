@@ -16,7 +16,7 @@ var CACHE_DIR = "build/.cache/";
 
 var HAXE_COMPILER_PORT = 6000;
 var HTTP_PORT = 7000;
-var SOCKET_PORT = HTTP_PORT+1;
+var SOCKET_PORT = HTTP_PORT + 1;
 
 // The minimum SWF version for browser Flash. For AIR, we always use the latest
 var SWF_VERSION = "11.2";
@@ -27,33 +27,33 @@ exports.VERSION = JSON.parse(fs.readFileSync(__dirname + "/package.json")).versi
 
 exports.loadConfig = function (file) {
     var promise =
-    Q.nfcall(fs.readFile, file)
-    .catch(function (error) {
-        throw new Error("Could not open '" + file + "'. Is this a valid project directory?");
-    })
-    .then(function (text) {
-        var yaml = require("js-yaml");
-        // yaml barfs on tab indentation, replace with spaces. This can lead to problems with
-        // mixed tabs/spaces on multiline values though...
-        var converted = text.toString().replace(/^\t+/gm, function (tabs) {
-            return tabs.replace(/\t/g, "    ");
-        });
-        return yaml.safeLoad(converted);
-    });
+        Q.nfcall(fs.readFile, file)
+            .catch(function (error) {
+                throw new Error("Could not open '" + file + "'. Is this a valid project directory?");
+            })
+            .then(function (text) {
+                var yaml = require("js-yaml");
+                // yaml barfs on tab indentation, replace with spaces. This can lead to problems with
+                // mixed tabs/spaces on multiline values though...
+                var converted = text.toString().replace(/^\t+/gm, function (tabs) {
+                    return tabs.replace(/\t/g, "    ");
+                });
+                return yaml.safeLoad(converted);
+            });
     return promise;
 };
 
 exports.newProject = function (output) {
     var promise =
-    Q.nfcall(wrench.copyDirRecursive, DATA_DIR+"scaffold", output, {})
-    .then(function () {
-        // Packaging it straight as .gitignore seems to create problems with NPM/Windows
-        return Q.nfcall(fs.rename, output+"/_.gitignore", output+"/.gitignore");
-    })
-    .then(function () {
-        // Can't include this empty directory in git, so create it manually
-        return Q.nfcall(fs.mkdir, output+"/libs");
-    });
+        Q.nfcall(wrench.copyDirRecursive, DATA_DIR + "scaffold", output, {})
+            .then(function () {
+                // Packaging it straight as .gitignore seems to create problems with NPM/Windows
+                return Q.nfcall(fs.rename, output + "/_.gitignore", output + "/.gitignore");
+            })
+            .then(function () {
+                // Can't include this empty directory in git, so create it manually
+                return Q.nfcall(fs.mkdir, output + "/libs");
+            });
     return promise;
 };
 
@@ -69,48 +69,50 @@ exports.run = function (config, platform, opts) {
     var run = function () {
         var id = get(config, "id");
         switch (platform) {
-        case "html": case "flash":
-            var url = "http://localhost:" + HTTP_PORT + "/?flambe=" + platform;
-            console.log("Launching: " + url);
+            case "html":
+            case "flash":
+                var url = "http://localhost:" + HTTP_PORT + "/?flambe=" + platform;
+                console.log("Launching: " + url);
 
-            return exports.sendMessage("restart")
-            .then(function (result) {
-                var clients = (platform == "html") ? result.htmlClients : result.flashClients;
-                if (clients < 1) {
-                    // Open a new browser window if no connected clients, or this is a release build
-                    var open = require("open");
-                    open(url);
-                    console.log("Opened in a new browser window.");
-                } else {
-                    console.log("Reloaded an existing browser window.");
-                }
-            })
-            .catch(function (error) {
-                return Q.reject("Development server not found. Run `flambe serve` in a another terminal and try again.");
-            });
-            break;
+                return exports.sendMessage("restart")
+                    .then(function (result) {
+                        var clients = (platform == "html") ? result.htmlClients : result.flashClients;
+                        if (clients < 1) {
+                            // Open a new browser window if no connected clients, or this is a release build
+                            var open = require("open");
+                            open(url);
+                            console.log("Opened in a new browser window.");
+                        } else {
+                            console.log("Reloaded an existing browser window.");
+                        }
+                    })
+                    .catch(function (error) {
+                        return Q.reject("Development server not found. Run `flambe serve` in a another terminal and try again.");
+                    });
+                break;
 
-        case "android": case "ios":
-            var app = (platform == "android") ? "build/main-android.apk" : "build/main-ios.ipa";
-            console.log("Installing: " + app);
-            return adt(["-uninstallApp", "-platform", platform, "-appid", id],
-                {output: false, check: false})
-            .then(function () {
-                return adt(["-installApp", "-platform", platform, "-package", app]);
-            })
-            .then(function () {
-                var p = adt(["-launchApp", "-platform", platform, "-appid", id]);
-                if (debug && !opts.noFdb) {
-                    console.log();
-                    fdb(["run", "continue"]);
-                }
-                return p;
-            })
-            break;
+            case "android":
+            case "ios":
+                var app = (platform == "android") ? "build/main-android.apk" : "build/main-ios.ipa";
+                console.log("Installing: " + app);
+                return adt(["-uninstallApp", "-platform", platform, "-appid", id],
+                    {output: false, check: false})
+                    .then(function () {
+                        return adt(["-installApp", "-platform", platform, "-package", app]);
+                    })
+                    .then(function () {
+                        var p = adt(["-launchApp", "-platform", platform, "-appid", id]);
+                        if (debug && !opts.noFdb) {
+                            console.log();
+                            fdb(["run", "continue"]);
+                        }
+                        return p;
+                    })
+                break;
 
-        case "firefox":
-            console.log("Open "+path.resolve("build/firefox")+" from about:app-manager in Firefox.");
-            return Q.resolve();
+            case "firefox":
+                console.log("Open " + path.resolve("build/firefox") + " from about:app-manager in Firefox.");
+                return Q.resolve();
         }
     };
 
@@ -142,14 +144,14 @@ exports.build = function (config, platforms, opts) {
             _preparedWeb = true;
 
             wrench.mkdirSyncRecursive("build/web/targets");
-            copyFileSync(DATA_DIR+"flambe.js", "build/web/flambe.js");
+            copyFileSync(DATA_DIR + "flambe.js", "build/web/flambe.js");
 
             return copyDirs(webPaths, "build/web", {includeHidden: true})
-            .then(function () {
-                if (fs.existsSync("icons")) {
-                    return copyDirs("icons", "build/web/icons");
-                }
-            });
+                .then(function () {
+                    if (fs.existsSync("icons")) {
+                        return copyDirs("icons", "build/web/icons");
+                    }
+                });
         }
         return Q();
     };
@@ -158,14 +160,14 @@ exports.build = function (config, platforms, opts) {
         wrench.rmdirSyncRecursive(dest, true);
         // TODO(bruno): Filter out certain formats based on the platform
         return copyDirs(assetPaths, dest)
-        .then(function () {
-            return ["--macro", "flambe.platform.ManifestBuilder.use(\""+dest+"\")"];
-        });
+            .then(function () {
+                return ["--macro", "flambe.platform.ManifestBuilder.use(\"" + dest + "\")"];
+            });
     };
 
     var swfFlags = function (air) {
         // Flags common to all swf-based targets (flash, android, ios)
-        var flags = ["--flash-strict", "-swf-header", get(config, "width", "640")+":"+get(config, "height", "480")+":"+get(config, "framerate", "60")+":000000"];
+        var flags = ["--flash-strict", "-swf-header", get(config, "width", "640") + ":" + get(config, "height", "480") + ":" + get(config, "framerate", "60") + ":000000"];
         if (debug) flags.push("-D", "fdb", "-D", "advanced-telemetry");
         else flags.push("-D", "native_trace");
 
@@ -173,14 +175,14 @@ exports.build = function (config, platforms, opts) {
         libPaths.forEach(function (libPath) {
             forEachFileIn(libPath, function (file) {
                 if (file.match(/.*\.(swc|swf)$/)) {
-                    flags.push("-swf-lib", libPath+"/"+file);
+                    flags.push("-swf-lib", libPath + "/" + file);
                 } else if (air && file.match(/.*\.ane$/)) {
                     // flags.push("-swf-lib-extern", libPath+"/"+file);
                     // The current version of Haxe can't deal with .ane -swf-libs, so rename it to a
                     // swc first
-                    var swc = CACHE_DIR+"air/"+file+".swc";
-                    wrench.mkdirSyncRecursive(CACHE_DIR+"air");
-                    copyFileSync(libPath+"/"+file, swc);
+                    var swc = CACHE_DIR + "air/" + file + ".swc";
+                    wrench.mkdirSyncRecursive(CACHE_DIR + "air");
+                    copyFileSync(libPath + "/" + file, swc);
                     flags.push("-swf-lib-extern", swc);
                 }
             });
@@ -206,16 +208,16 @@ exports.build = function (config, platforms, opts) {
         } else {
             // Minify release builds
             return haxe(flags.concat(["-js", unminified]))
-            .then(function () {
-                return minify([unminified], js, {strict: true});
-            })
-            .then(function () {
-                // Delete the source map file produced by debug builds
-                return Q.nfcall(fs.unlink, js+".map")
-                .catch(function () {
-                    // Ignore errors
+                .then(function () {
+                    return minify([unminified], js, {strict: true});
+                })
+                .then(function () {
+                    // Delete the source map file produced by debug builds
+                    return Q.nfcall(fs.unlink, js + ".map")
+                        .catch(function () {
+                            // Ignore errors
+                        });
                 });
-            });
         }
     };
 
@@ -223,15 +225,29 @@ exports.build = function (config, platforms, opts) {
         var outputDir = "build/web";
 
         return prepareWeb(outputDir)
-        .then(function () { return prepareAssets(outputDir+"/assets") })
-        .then(function (assetFlags) {
-            console.log("Building: " + outputDir);
-            return buildJS({
-                target: "html",
-                outputDir: outputDir,
-                assetFlags: assetFlags,
+            .then(function () {
+                return prepareAssets(outputDir + "/assets");
+            }).then(function (assetFlags) {
+                wrench.readdirRecursive(outputDir + "/assets", function (_, filesPathes) {
+                    if (filesPathes)
+                        filesPathes.forEach(function (filePath) {
+                            if (filePath.indexOf("native_only") != -1) {
+                                if(debug)
+                                    console.log("assets file will be removed on compiling without debug: " + filePath);
+                                else
+                                    fs.unlink(outputDir + "/assets/" + filePath);
+                            }
+                        });
+                });
+                return assetFlags;
+            }).then(function (assetFlags) {
+                console.log("Building: " + outputDir);
+                return buildJS({
+                    target: "html",
+                    outputDir: outputDir,
+                    assetFlags: assetFlags,
+                });
             });
-        });
     };
 
     var buildFlash = function () {
@@ -240,48 +256,51 @@ exports.build = function (config, platforms, opts) {
             "-swf-version", SWF_VERSION, "-swf", swf]);
 
         return prepareWeb()
-        .then(function () { return prepareAssets("build/web/assets") })
-        .then(function (assetFlags) {
-            console.log("Building: " + swf);
-            return haxe(commonFlags.concat(assetFlags).concat(flashFlags));
-        });
+            .then(function () {
+                return prepareAssets("build/web/assets")
+            })
+            .then(function (assetFlags) {
+                console.log("Building: " + swf);
+                return haxe(commonFlags.concat(assetFlags).concat(flashFlags));
+            });
     };
 
     var buildAir = function (flags) {
-        var airFlags = swfFlags(true).concat(["-swf-version", "11.7", "-D", "air"]);
+        var airFlags = swfFlags(true).concat(["-swf-version", get(config, "swf_version", "11.7"), "-D", "air"]);
 
-        wrench.mkdirSyncRecursive(CACHE_DIR+"air");
-        return prepareAssets(CACHE_DIR+"air/assets")
-        .then(function (assetFlags) {
-            return haxe(commonFlags.concat(assetFlags).concat(airFlags).concat(flags));
-        });
+        wrench.mkdirSyncRecursive(CACHE_DIR + "air");
+        return prepareAssets(CACHE_DIR + "air/assets")
+            .then(function (assetFlags) {
+                return haxe(commonFlags.concat(assetFlags).concat(airFlags).concat(flags));
+            });
     };
 
-    var generateAirXml = function (swf, output) {
+    var generateAirXml = function (swf, output, platform) {
         var xmldom = require("xmldom");
         var xml =
-            "<application xmlns=\"http://ns.adobe.com/air/application/4.0\">\n" +
-            "  <id>"+get(config, "id")+"</id>\n" +
-            "  <versionNumber>"+get(config, "version")+"</versionNumber>\n" +
-            "  <filename>"+get(config, "name")+"</filename>\n" +
+            "<application xmlns=\"http://ns.adobe.com/air/application/" + get(config, "air_version", "4.0") + "\">\n" +
+            "  <id>" + get(config, "id") + "</id>\n" +
+            "  <versionNumber>" + get(config, "version") + "</versionNumber>\n" +
+            "  <filename>" + get(config, "name") + "</filename>\n" +
+            "  <name>" + get(config, "display_name", get(config, "name")) + "</name>\n" +
             "  <initialWindow>\n" +
-            "    <content>"+swf+"</content>\n" +
-            "    <aspectRatio>"+get(config, "orientation", "portrait")+"</aspectRatio>\n" +
-            "    <fullScreen>"+get(config, "fullscreen", "true")+"</fullScreen>\n" +
+            "    <content>" + swf + "</content>\n" +
+            "    <aspectRatio>" + get(config, "orientation", "portrait") + "</aspectRatio>\n" +
+            "    <fullScreen>" + get(config, "fullscreen", "true") + "</fullScreen>\n" +
             "    <autoOrients>true</autoOrients>\n" + // Enables 180 degree rotation
             "    <renderMode>direct</renderMode>\n" +
             "  </initialWindow>\n" +
             "  <android>\n" +
             "    <manifestAdditions><![CDATA[\n" +
-                   get(config, "android AndroidManifest.xml", "<manifest android:installLocation=\"auto\"/>") +
+            get(config, "android AndroidManifest.xml", "<manifest android:installLocation=\"auto\"/>") +
             "    ]]></manifestAdditions>\n" +
             "  </android>\n" +
             "  <iPhone>\n" +
             "    <InfoAdditions><![CDATA[\n" +
-                   get(config, "ios Info.plist", "") +
+            get(config, "ios Info.plist", "") +
             "    ]]></InfoAdditions>\n" +
             "    <Entitlements><![CDATA[\n" +
-                   get(config, "ios Entitlements.plist", "") +
+            get(config, "ios Entitlements.plist", "") +
             "    ]]></Entitlements>\n" +
             "    <requestedDisplayResolution>high</requestedDisplayResolution>\n" +
             "  </iPhone>\n" +
@@ -300,7 +319,7 @@ exports.build = function (config, platforms, opts) {
                 if (file.match(/.*\.ane$/)) {
                     // Extract the extension ID from the .ane
                     var AdmZip = require("adm-zip");
-                    var zip = new AdmZip(libPath+"/"+file);
+                    var zip = new AdmZip(libPath + "/" + file);
                     var extension = new xmldom.DOMParser().parseFromString(
                         zip.readAsText("META-INF/ANE/extension.xml"));
                     var id = extension.getElementsByTagName("id")[0].textContent;
@@ -319,17 +338,21 @@ exports.build = function (config, platforms, opts) {
             doc.documentElement.appendChild(extensions);
         }
 
+        var iconsPath = "icons";
+        if (platform)
+            iconsPath += "/" + platform;
+
         var icons = doc.createElement("icon");
-        fs.readdirSync("icons").forEach(function (file) {
+        fs.readdirSync(iconsPath).forEach(function (file) {
             // Only include properly named square icons
             var match = file.match(/^(\d+)x\1\.png$/);
             if (match) {
                 var size = match[1];
-                var image = doc.createElement("image"+size+"x"+size);
-                image.textContent = "icons/"+file;
+                var image = doc.createElement("image" + size + "x" + size);
+                image.textContent = iconsPath + "/" + file;
                 icons.appendChild(image);
             } else {
-                console.warn("Invalid icon: icons/"+file);
+                console.warn("Invalid icon: " + iconsPath + "/" + file);
             }
         });
         if (icons.firstChild) {
@@ -346,41 +369,41 @@ exports.build = function (config, platforms, opts) {
         console.log("Building: " + apk);
 
         var swf = "main-android.swf";
-        var xml = CACHE_DIR+"air/config-android.xml";
+        var xml = CACHE_DIR + "air/config-android.xml";
 
         var cert = "certs/android.p12";
         var password = get(config, "android password", "password");
 
-        return buildAir(["-D", "android", "-swf", CACHE_DIR+"air/"+swf])
-        .then(function () {
-            if (!fs.existsSync(cert)) {
-                // Generate a dummy certificate if it doesn't exist
-                cert = CACHE_DIR+"air/certificate-android.p12";
+        return buildAir(["-D", "android", "-swf", CACHE_DIR + "air/" + swf])
+            .then(function () {
                 if (!fs.existsSync(cert)) {
-                    return adt(["-certificate", "-cn", "SelfSign", "-validityPeriod", "25",
-                        "2048-RSA", cert, password]);
+                    // Generate a dummy certificate if it doesn't exist
+                    cert = CACHE_DIR + "air/certificate-android.p12";
+                    if (!fs.existsSync(cert)) {
+                        return adt(["-certificate", "-cn", "SelfSign", "-validityPeriod", "25",
+                            "2048-RSA", cert, password]);
+                    }
                 }
-            }
-        })
-        .then(function () {
-            var pathOptions = generateAirXml(swf, xml);
+            })
+            .then(function () {
+                var pathOptions = generateAirXml(swf, xml, "android");
 
-            var androidFlags = ["-package"];
-            if (debug) {
-                var fdbHost = opts.fdbHost || getIP();
-                androidFlags.push("-target", "apk-debug", "-connect", fdbHost);
-            } else {
-                androidFlags.push("-target", "apk-captive-runtime");
-            }
-            androidFlags.push("-storetype", "pkcs12", "-keystore", cert,
-                "-storepass", password, apk, xml);
-            androidFlags = androidFlags.concat(pathOptions);
-            androidFlags.push("-C", CACHE_DIR+"air", swf, "assets");
-            if (fs.existsSync("android")) {
-                androidFlags.push("-C", "android", ".");
-            }
-            return adt(androidFlags);
-        });
+                var androidFlags = ["-package"];
+                if (debug) {
+                    var fdbHost = opts.fdbHost || getIP();
+                    androidFlags.push("-target", "apk-debug", "-connect", fdbHost);
+                } else {
+                    androidFlags.push("-target", "apk-captive-runtime");
+                }
+                androidFlags.push("-storetype", "pkcs12", "-keystore", cert,
+                    "-storepass", password, apk, xml);
+                androidFlags = androidFlags.concat(pathOptions);
+                androidFlags.push("-C", CACHE_DIR + "air", swf, "assets");
+                if (fs.existsSync("android")) {
+                    androidFlags.push("-C", "android", ".");
+                }
+                return adt(androidFlags);
+            });
     };
 
     var buildIos = function () {
@@ -388,122 +411,144 @@ exports.build = function (config, platforms, opts) {
         console.log("Building: " + ipa);
 
         var swf = "main-ios.swf";
-        var cert = "certs/ios-development.p12";
-        var mobileProvision = "certs/ios.mobileprovision";
-        var xml = CACHE_DIR+"air/config-ios.xml";
 
-        return buildAir(["-D", "ios", "-D", "no-flash-override", "-swf", CACHE_DIR+"air/"+swf])
-        .then(function () {
-            var pathOptions = generateAirXml(swf, xml);
+        var cert;
+        if (debug)
+            cert = "certs/ios-development.p12";
+        else
+            cert = "certs/ios-distribution.p12";
 
-            var iosFlags = ["-package"];
-            if (debug) {
-                var fdbHost = opts.fdbHost || getIP();
-                iosFlags.push("-target", "ipa-debug", "-connect", fdbHost);
-            } else {
-                iosFlags.push("-target", "ipa-ad-hoc");
-            }
-            iosFlags.push("-storetype", "pkcs12", "-keystore", cert,
-                "-storepass", get(config, "ios password", "password"),
-                "-provisioning-profile", mobileProvision,
-                "-useLegacyAOT", "yes", // https://github.com/ncannasse/hxsl/issues/32
-                ipa, xml);
-            iosFlags = iosFlags.concat(pathOptions);
-            iosFlags.push("-C", CACHE_DIR+"air", swf, "assets");
-            if (fs.existsSync("ios")) {
-                iosFlags.push("-C", "ios", ".");
-            }
-            return adt(iosFlags);
-        });
+        var mobileProvision;
+        if (debug)
+            mobileProvision = "certs/ios-development.mobileprovision";
+        else
+            mobileProvision = "certs/ios-distribution.mobileprovision";
+
+
+        var xml = CACHE_DIR + "air/config-ios.xml";
+
+        return buildAir(["-D", "ios", "-D", "no-flash-override", "-swf", CACHE_DIR + "air/" + swf])
+            .then(function () {
+                var pathOptions = generateAirXml(swf, xml, "ios");
+
+                var iosFlags = ["-package"];
+                if (debug) {
+                    var fdbHost = opts.fdbHost || getIP();
+                    iosFlags.push("-target", "ipa-debug", "-connect", fdbHost);
+                } else {
+                    iosFlags.push("-target", "ipa-ad-hoc");
+                }
+                iosFlags.push("-storetype", "pkcs12", "-keystore", cert,
+                    "-storepass", get(config, "ios password", "password"),
+                    "-provisioning-profile", mobileProvision,
+//                "-useLegacyAOT", "yes", // https://github.com/ncannasse/hxsl/issues/32
+                    ipa, xml);
+                iosFlags = iosFlags.concat(pathOptions);
+                iosFlags.push("-C", CACHE_DIR + "air", swf, "assets");
+                if (fs.existsSync("ios")) {
+                    iosFlags.push("-C", "ios", ".");
+                }
+
+                fs.readdirSync("launch_images").forEach(function (file) {
+                    var match = file.match(/^Default.*\.png$/);
+                    if (match) {
+                        copyFileSync("launch_images/" + file, CACHE_DIR + "air/" + file);
+//                        console.log("copy: " + "launch_images/" + file  + " TO: " + CACHE_DIR + "air/" + file);
+                        iosFlags.push(file)
+                    }
+                });
+
+                return adt(iosFlags);
+            });
     };
 
     var buildFirefox = function () {
         var outputDir = "build/firefox";
-        wrench.mkdirSyncRecursive(outputDir+"/targets");
+        wrench.mkdirSyncRecursive(outputDir + "/targets");
 
-        return prepareAssets(outputDir+"/assets")
-        .then(function (assetFlags) {
-            console.log("Building: " + outputDir);
-            return buildJS({
-                target: "firefox",
-                outputDir: outputDir,
-                assetFlags: assetFlags,
+        return prepareAssets(outputDir + "/assets")
+            .then(function (assetFlags) {
+                console.log("Building: " + outputDir);
+                return buildJS({
+                    target: "firefox",
+                    outputDir: outputDir,
+                    assetFlags: assetFlags,
+                });
+            })
+            .then(function () {
+                return copyDirs(DATA_DIR + "firefox", outputDir);
+            })
+            .then(function () {
+                if (fs.existsSync("icons")) {
+                    return copyDirs("icons", outputDir + "/icons");
+                }
+            })
+            .then(function () {
+                var manifest = {
+                    name: get(config, "name"),
+                    description: get(config, "description"),
+                    developer: {
+                        name: get(config, "developer name"),
+                        url: get(config, "developer url"),
+                    },
+                    version: get(config, "version"),
+                    launch_path: "/index.html",
+                    orientation: get(config, "orientation", "portrait").toLowerCase() == "portrait" ?
+                        ["portrait", "portrait-secondary"] : ["landscape", "landscape-secondary"],
+                    fullscreen: "" + get(config, "fullscreen", true),
+                    icons: {},
+                };
+                findIcons("icons").forEach(function (icon) {
+                    manifest.icons[icon.size] = "/" + icon.image;
+                });
+
+                // Copy any additional fields into manifest from 2DKit.yaml
+                clone(get(config, "firefox manifest.webapp", {}), manifest);
+
+                fs.writeFileSync(outputDir + "/manifest.webapp", JSON.stringify(manifest));
             });
-        })
-        .then(function () {
-            return copyDirs(DATA_DIR+"firefox", outputDir);
-        })
-        .then(function () {
-            if (fs.existsSync("icons")) {
-                return copyDirs("icons", outputDir+"/icons");
-            }
-        })
-        .then(function () {
-            var manifest = {
-                name: get(config, "name"),
-                description: get(config, "description"),
-                developer: {
-                    name: get(config, "developer name"),
-                    url: get(config, "developer url"),
-                },
-                version: get(config, "version"),
-                launch_path: "/index.html",
-                orientation: get(config, "orientation", "portrait").toLowerCase() == "portrait" ?
-                    ["portrait", "portrait-secondary"] : ["landscape", "landscape-secondary"],
-                fullscreen: ""+get(config, "fullscreen", true),
-                icons: {},
-            };
-            findIcons("icons").forEach(function (icon) {
-                manifest.icons[icon.size] = "/"+icon.image;
-            });
-
-            // Copy any additional fields into manifest from 2DKit.yaml
-            clone(get(config, "firefox manifest.webapp", {}), manifest);
-
-            fs.writeFileSync(outputDir+"/manifest.webapp", JSON.stringify(manifest));
-        });
     };
 
     wrench.mkdirSyncRecursive(CACHE_DIR);
 
     var connectFlags = ["--connect", opts.haxeServer || HAXE_COMPILER_PORT];
     return haxe(connectFlags, {check: false, verbose: false, output: false})
-    .then(function (code) {
-        // Use a Haxe compilation server if available
-        if (code == 0) {
-            commonFlags = commonFlags.concat(connectFlags);
-        }
+        .then(function (code) {
+            // Use a Haxe compilation server if available
+            if (code == 0) {
+                commonFlags = commonFlags.concat(connectFlags);
+            }
 
-        commonFlags.push("-main", get(config, "main"));
-        commonFlags = commonFlags.concat(toArray(get(config, "haxe_flags", [])));
-        commonFlags.push("-lib", "flambe");
-        srcPaths.forEach(function (srcDir) {
-            commonFlags.push("-cp", srcDir);
-        });
-        commonFlags.push("-dce", "full");
-        if (debug) {
-            commonFlags.push("-debug", "--no-opt", "--no-inline");
-        } else {
-            commonFlags.push("--no-traces");
-        }
-    })
-    .then(function () {
-        var builders = {
-            html: buildHtml,
-            flash: buildFlash,
-            android: buildAndroid,
-            ios: buildIos,
-            firefox: buildFirefox,
-        };
-        var promise = Q();
-        platforms.forEach(function (platform, idx) {
-            promise = promise.then(function () {
-                if (idx != 0) console.log();
-                return builders[platform]();
+            commonFlags.push("-main", get(config, "main"));
+            commonFlags = commonFlags.concat(toArray(get(config, "haxe_flags", [])));
+            commonFlags.push("-lib", "flambe");
+            srcPaths.forEach(function (srcDir) {
+                commonFlags.push("-cp", srcDir);
             });
+            commonFlags.push("-dce", "full");
+            if (debug) {
+                commonFlags.push("-debug", "--no-opt", "--no-inline");
+            } else {
+                commonFlags.push("--no-traces");
+            }
+        })
+        .then(function () {
+            var builders = {
+                html: buildHtml,
+                flash: buildFlash,
+                android: buildAndroid,
+                ios: buildIos,
+                firefox: buildFirefox,
+            };
+            var promise = Q();
+            platforms.forEach(function (platform, idx) {
+                promise = promise.then(function () {
+                    if (idx != 0) console.log();
+                    return builders[platform]();
+                });
+            });
+            return promise;
         });
-        return promise;
-    });
 };
 
 exports.clean = function () {
@@ -515,13 +560,13 @@ exports.update = function (version, postInstall) {
     if (!postInstall) {
         // First update this command tool
         var npmFlags = (version != null)
-            ? ["install", "-g", "flambe@"+version]
+            ? ["install", "-g", "flambe@" + version]
             : ["update", "-g", "flambe"];
         var promise =
-        exec("npm", npmFlags)
-        .then(function () {
-            return exec("flambe", ["update", "--_postInstall"], {verbose: false});
-        });
+            exec("npm", npmFlags)
+                .then(function () {
+                    return exec("flambe", ["update", "--_postInstall"], {verbose: false});
+                });
         return promise;
 
     } else {
@@ -609,7 +654,7 @@ exports.exec = exec;
 
 var minify = function (inputs, output, opts) {
     opts = opts || {};
-    var flags = ["-jar", DATA_DIR+"closure.jar",
+    var flags = ["-jar", DATA_DIR + "closure.jar",
         "--warning_level", "QUIET",
         "--js_output_file", output,
         "--output_wrapper",
@@ -647,15 +692,16 @@ var getHaxeFlags = function (config, platform) {
     ];
 
     switch (platform) {
-    case "android": case "ios":
-        flags.push("-D", "air");
+        case "android":
+        case "ios":
+            flags.push("-D", "air");
         // Fall through
-    case "flash":
-        flags.push("-swf", "no-output.swf");
-        break;
-    default:
-        flags.push("-js", "no-output.js");
-        break;
+        case "flash":
+            flags.push("-swf", "no-output.swf");
+            break;
+        default:
+            flags.push("-js", "no-output.js");
+            break;
     }
     if (platform != "flash") {
         flags.push("-D", platform);
@@ -667,7 +713,7 @@ var getHaxeFlags = function (config, platform) {
     });
     getAllPaths(config, "libs").forEach(function (libPath) {
         forEachFileIn(libPath, function (file) {
-            flags.push("-swf-lib-extern", libPath+"/"+file);
+            flags.push("-swf-lib-extern", libPath + "/" + file);
         });
     });
     return flags;
@@ -698,18 +744,18 @@ Server.prototype.start = function () {
                 req.setEncoding("utf8");
                 req.on("data", function (chunk) {
                     self._onAPIMessage(chunk)
-                    .then(function (result) {
-                        res.end(JSON.stringify({result: result}));
-                    })
-                    .catch(function (error) {
-                        res.end(JSON.stringify({error: error}));
-                    });
+                        .then(function (result) {
+                            res.end(JSON.stringify({result: result}));
+                        })
+                        .catch(function (error) {
+                            res.end(JSON.stringify({error: error}));
+                        });
                 });
 
             } else {
                 if (parsed.query.v) {
                     // Forever-cache assets
-                    var expires = new Date(Date.now() + 1000*60*60*24*365*25);
+                    var expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 25);
                     res.setHeader("Expires", expires.toUTCString());
                     res.setHeader("Cache-Control", "max-age=315360000");
                 }
@@ -747,11 +793,11 @@ Server.prototype.start = function () {
             if (data == "<policy-file-request/>\0") {
                 // Handle Flash socket policy requests
                 connection.end(
-                    '<?xml version="1.0"?>' +
-                    '<!DOCTYPE cross-domain-policy SYSTEM "http://www.adobe.com/xml/dtds/cross-domain-policy.dtd">' +
-                    '<cross-domain-policy>' +
-                        '<allow-access-from domain="*" to-ports="'+SOCKET_PORT+'" />' +
-                    '</cross-domain-policy>');
+                        '<?xml version="1.0"?>' +
+                        '<!DOCTYPE cross-domain-policy SYSTEM "http://www.adobe.com/xml/dtds/cross-domain-policy.dtd">' +
+                        '<cross-domain-policy>' +
+                        '<allow-access-from domain="*" to-ports="' + SOCKET_PORT + '" />' +
+                        '</cross-domain-policy>');
             } else {
                 self._onMessage(data);
             }
@@ -764,7 +810,7 @@ Server.prototype.start = function () {
     watch.createMonitor("assets", {interval: 200}, function (monitor) {
         monitor.on("changed", function (file) {
             console.log("Asset changed: " + file);
-            var output = "build/web/"+file;
+            var output = "build/web/" + file;
             if (fs.existsSync(output)) {
                 var contents = fs.readFileSync(file);
                 fs.writeFileSync(output, contents);
@@ -814,14 +860,14 @@ Server.prototype._onAPIMessage = function (message) {
     }
 
     switch (message.method) {
-    case "restart":
-        this.broadcast("restart");
-        return Q.resolve({
-            htmlClients: this._wsServer.connections.length,
-            flashClients: this._connections.length,
-        });
-    default:
-        return Q.reject("Unknown method: " + message.method);
+        case "restart":
+            this.broadcast("restart");
+            return Q.resolve({
+                htmlClients: this._wsServer.connections.length,
+                flashClients: this._connections.length,
+            });
+        default:
+            return Q.reject("Unknown method: " + message.method);
     }
 };
 
@@ -841,7 +887,7 @@ var get = function (config, name, defaultValue) {
         var field = fields[ii];
         if (field in config) {
             config = config[field];
-            if (ii == ll-1) return config;
+            if (ii == ll - 1) return config;
         }
     }
     if (typeof defaultValue != "undefined") return defaultValue;
@@ -849,7 +895,7 @@ var get = function (config, name, defaultValue) {
 };
 
 var getAllPaths = function (config, name) {
-    var paths = toArray(get(config, "extra_paths "+name, []));
+    var paths = toArray(get(config, "extra_paths " + name, []));
     if (paths.length == 0 || fs.existsSync(name)) {
         // Make the standard path in the project directory optional if you've defined extras
         paths.unshift(name);
@@ -882,7 +928,8 @@ var copyDirs = function (dirs, dest, opts) {
         return prev.then(function () {
             return Q.nfcall(ncp, dir, dest, ncpOptions);
         });
-    }, Q.nfcall(fs.mkdir, dest).catch(function (){}));
+    }, Q.nfcall(fs.mkdir, dest).catch(function () {
+    }));
 };
 
 var copyFileSync = function (from, to) {
@@ -928,7 +975,7 @@ var findIcons = function (dir) {
         if (match) {
             icons.push({
                 size: match[1],
-                image: dir+"/"+file,
+                image: dir + "/" + file,
             });
         }
         // TODO(bruno): Warn if not matched?
