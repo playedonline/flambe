@@ -232,7 +232,7 @@ exports.build = function (config, platforms, opts) {
                     if (filesPathes)
                         filesPathes.forEach(function (filePath) {
                             if (filePath.indexOf("native_only") != -1) {
-                                if(debug)
+                                if (debug)
                                     console.log("assets file will be removed on compiling without debug: " + filePath);
                                 else
                                     fs.unlink(outputDir + "/assets/" + filePath);
@@ -271,6 +271,15 @@ exports.build = function (config, platforms, opts) {
         wrench.mkdirSyncRecursive(CACHE_DIR + "air");
         return prepareAssets(CACHE_DIR + "air/assets")
             .then(function (assetFlags) {
+                wrench.readdirRecursive(CACHE_DIR + "air/assets", function (_, filesPathes) {
+                    if (filesPathes)
+                        filesPathes.forEach(function (filePath) {
+                            if (filePath.indexOf("4x/") != -1)
+                                fs.unlink(CACHE_DIR + "air/assets/" + filePath);
+                        });
+                });
+                return assetFlags;
+            }).then(function (assetFlags) {
                 return haxe(commonFlags.concat(assetFlags).concat(airFlags).concat(flags));
             });
     };
