@@ -274,8 +274,9 @@ exports.build = function (config, platforms, opts) {
                 wrench.readdirRecursive(CACHE_DIR + "air/assets", function (_, filesPathes) {
                     if (filesPathes)
                         filesPathes.forEach(function (filePath) {
-                            if (filePath.indexOf("4x/") != -1)
+                            if (filePath.indexOf("4x/") != -1 || filePath.indexOf(".ogg") != -1) {
                                 fs.unlink(CACHE_DIR + "air/assets/" + filePath);
+                            }
                         });
                 });
                 return assetFlags;
