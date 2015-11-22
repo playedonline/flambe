@@ -429,6 +429,11 @@ class HtmlPlatform
         if (!majorVersion.match(Browser.navigator.userAgent) || Std.parseInt(majorVersion.matched(1)) >= 26)
 #end
         try {
+            //BUGGY BROWSER VERSION CANVAS FALLBACK
+            if (Browser.navigator.platform.indexOf("Linux armv7l") != -1) {
+                return new CanvasRenderer(canvas);
+            }
+
             var gl = canvas.getContextWebGL(cast {
 #if !flambe_transparent
                 alpha: false,
