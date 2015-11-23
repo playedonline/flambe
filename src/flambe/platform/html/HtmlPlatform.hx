@@ -434,9 +434,10 @@ class HtmlPlatform
             var buggyDevices = [
 				"A0001" //ONEPLUS 1
 			];
+			trace('checking buggy devices $buggyDevices .');
 
 			for (deviceName in buggyDevices) {
-				if (Browser.navigator.userAgent.search(deviceName) >= 0) {
+				if (Browser.navigator.userAgent.indexOf(deviceName) >= 0) {
 					trace('Device with buggy useragent $deviceName found, falling back to canvas.');
 					return new CanvasRenderer(canvas);
 				}
