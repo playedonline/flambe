@@ -75,7 +75,7 @@ class FlashAssetPackLoader extends BasicAssetPackLoader
 
         var events = new EventGroup();
         events.addListener(dispatcher, ProgressEvent.PROGRESS, function (event :ProgressEvent) {
-            handleProgress(entry, cast event.bytesLoaded * 0.66);
+            handleProgress(entry, cast event.bytesLoaded);
         });
         events.addDisposingListener(dispatcher, Event.COMPLETE, function (_) {
             var asset;

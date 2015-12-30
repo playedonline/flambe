@@ -68,7 +68,7 @@ interface Texture extends Asset
      * @param height The height of the region.
      */
     function subTexture (x :Int, y :Int, width :Int, height :Int) :SubTexture;
-
+    
     /**
      * Splits this texture into multiple tiles using `subTexture()`.
      *

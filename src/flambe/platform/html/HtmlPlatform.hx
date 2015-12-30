@@ -266,7 +266,12 @@ class HtmlPlatform
         _catapult = HtmlCatapultClient.canUse() ? new HtmlCatapultClient() : null;
 #end
 #end
-        Log.info("Initialized HTML platform", ["renderer", _renderer.type]);
+        var promise = new Promise<Bool>();
+        promise.success.connect(function (result) {
+            Log.info("Initialized HTML platform", ["renderer", _renderer.type]);
+        });
+        promise.result = true;
+        return promise;
     }
 
     public function loadAssetPack (manifest :Manifest) :Promise<AssetPack>
@@ -429,20 +434,6 @@ class HtmlPlatform
         if (!majorVersion.match(Browser.navigator.userAgent) || Std.parseInt(majorVersion.matched(1)) >= 26)
 #end
         try {
-
-            //BUGGY BROWSER VERSION CANVAS FALLBACK
-            var buggyDevices = [
-				"A0001" //ONEPLUS 1
-			];
-			trace('checking buggy devices $buggyDevices .');
-
-			for (deviceName in buggyDevices) {
-				if (Browser.navigator.userAgent.indexOf(deviceName) >= 0) {
-					trace('Device with buggy useragent $deviceName found, falling back to canvas.');
-					return new CanvasRenderer(canvas);
-				}
-			}
-
             var gl = canvas.getContextWebGL(cast {
 #if !flambe_transparent
                 alpha: false,

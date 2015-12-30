@@ -89,7 +89,7 @@ class HtmlStage
     public function get_fullscreenSupported () :Bool
     {
         return HtmlUtil.loadFirstExtension(
-            ["fullscreenEnabled", "fullScreenEnabled"], getParentWindow().document).value == true;
+            ["fullscreenEnabled", "fullScreenEnabled"], Browser.document).value == true;
     }
 
     public function lockOrientation (orient :Orientation)
@@ -128,7 +128,7 @@ class HtmlStage
     public function requestFullscreen (enable :Bool = true)
     {
         if (enable) {
-            var documentElement =  getParentWindow().document.documentElement;
+            var documentElement = Browser.document.documentElement;
             var requestFullscreen = HtmlUtil.loadFirstExtension(
                ["requestFullscreen", "requestFullScreen"], documentElement).value;
             if (requestFullscreen != null) {
@@ -137,9 +137,9 @@ class HtmlStage
 
         } else {
             var cancelFullscreen = HtmlUtil.loadFirstExtension(
-                ["cancelFullscreen", "cancelFullScreen"], getParentWindow().document).value;
+                ["cancelFullscreen", "cancelFullScreen"], Browser.document).value;
             if (cancelFullscreen != null) {
-                Reflect.callMethod(getParentWindow().document, cancelFullscreen, []);
+                Reflect.callMethod(Browser.document, cancelFullscreen, []);
             }
         }
     }
@@ -203,7 +203,7 @@ class HtmlStage
     private function updateFullscreen ()
     {
         var state :Dynamic = HtmlUtil.loadFirstExtension(
-            ["fullscreen", "fullScreen", "isFullScreen"], getParentWindow().document).value;
+            ["fullscreen", "fullScreen", "isFullScreen"], Browser.document).value;
         fullscreen._ = (state == true); // state will be null if fullscreen not supported
     }
 
@@ -235,15 +235,6 @@ class HtmlStage
             return 1;
         }
         return scale;
-    }
-
-    private function getParentWindow():js.html.DOMWindow {
-        try{
-            Browser.window.parent.document;
-            return Browser.window.parent;
-        } catch(e:Dynamic) {
-            return Browser.window;
-        }
     }
 
     private var _canvas :CanvasElement;

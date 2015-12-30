@@ -41,7 +41,9 @@ class CanvasTextureRoot extends BasicAsset<CanvasTextureRoot>
     {
         assertNotDisposed();
 
-        return Bytes.ofData(cast getContext2d().getImageData(x, y, width, height).data);
+		return Bytes.ofData(cast getContext2d().getImageData(x, y, width, height).data);
+        //var data :Array<Int> = cast getContext2d().getImageData(x, y, width, height).data;
+        //return Bytes.ofData(data);
     }
 
     public function writePixels (pixels :Bytes, x :Int, y :Int, sourceW :Int, sourceH :Int)

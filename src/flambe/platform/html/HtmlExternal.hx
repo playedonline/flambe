@@ -22,19 +22,19 @@ class HtmlExternal
         return true;
     }
 
-    public function call (name :String, ?params :Array<Dynamic>) :Dynamic
+    public function call (name :String, ?params :Array<Dynamic>):Dynamic
     {
         if (params == null) {
             params = [];
         }
 
         var object = Browser.window;
-        var method :Dynamic = object;
+        untyped var method = object;
         for (fieldName in name.split(".")) {
-            object = method;
-            method = Reflect.field(object, fieldName);
+            object = untyped method;
+            untyped method = Reflect.field(object, fieldName);
         }
-        return Reflect.callMethod(object, method, params);
+        return Reflect.callMethod(object, untyped method, params);
     }
 
     public function bind (name :String, fn :Dynamic)

@@ -106,6 +106,10 @@ class WebGLRenderer
         graphics.didRender();
     }
 
+    public function canRender() {
+        return !gl.isContextLost();
+    }
+
     private function onResize ()
     {
         var width = gl.canvas.width, height = gl.canvas.height;

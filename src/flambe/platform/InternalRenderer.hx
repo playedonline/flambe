@@ -31,4 +31,6 @@ interface InternalRenderer<NativeImage> extends RendererSystem<NativeImage>
      * Notifies the renderer that drawing the frame is complete.
      */
     function didRender () :Void;
+
+    function canRender () :Bool;
 }

@@ -79,9 +79,17 @@ class CanvasRenderer
         graphics.didRender();
     }
 
+    public function canRender() {
+        return true;
+    }
+
     public function getName () :String
     {
         return "Canvas";
+    }
+
+    public function saveTexture(texture:Texture):Void {
+        
     }
 
     /** If true, blit loaded images to a canvas and use that as the texture. */

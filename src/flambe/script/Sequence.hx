@@ -22,10 +22,9 @@ class Sequence
         _runningActions = (actions != null) ? cast actions.copy() : [];
     }
 
-    public function add (action :Action) :Sequence
+    public function add (action :Action)
     {
         _runningActions.push(action);
-        return this;
     }
 
     public function remove (action :Action) :Bool

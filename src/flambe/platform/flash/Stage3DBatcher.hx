@@ -39,7 +39,7 @@ class Stage3DBatcher
     }
 
     public function resizeBackbuffer (width :Int, height :Int)
-    {
+    {           
         _context3D.configureBackBuffer(width, height, 2, false);
     }
 

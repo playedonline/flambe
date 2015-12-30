@@ -301,6 +301,8 @@ exports.build = function (config, platforms, opts) {
             "    <renderMode>direct</renderMode>\n" +
             "  </initialWindow>\n" +
             "  <android>\n" +
+            "    <containsVideo>true</containsVideo>\n" +
+            "    <colorDepth>16bit</colorDepth>\n" +
             "    <manifestAdditions><![CDATA[\n" +
             get(config, "android AndroidManifest.xml", "<manifest android:installLocation=\"auto\"/>") +
             "    ]]></manifestAdditions>\n" +

@@ -55,6 +55,8 @@ interface RendererSystem<NativeImage>
      */
     function createTextureFromImage (image :NativeImage) :Texture;
 
+    function saveTexture (texture :Texture):Void;
+
     // function createBuffer (size :Int) :Buffer;
     // function createShader (glsl :String) :Shader;
 }
