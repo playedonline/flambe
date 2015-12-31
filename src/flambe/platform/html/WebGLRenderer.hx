@@ -4,6 +4,7 @@
 
 package flambe.platform.html;
 
+import flambe.display.Texture;
 import js.html.webgl.*;
 
 import haxe.io.Bytes;
@@ -24,6 +25,9 @@ class WebGLRenderer
 
     public var gl (default, null) :RenderingContext;
     public var batcher (default, null) :WebGLBatcher;
+
+    public function saveTexture(texture:Texture):Void {
+    }
 
     public function new (stage :HtmlStage, gl :RenderingContext)
     {
