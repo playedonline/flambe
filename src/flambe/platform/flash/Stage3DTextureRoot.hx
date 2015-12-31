@@ -63,11 +63,7 @@ class Stage3DTextureRoot extends BasicAsset<Stage3DTextureRoot>
     }
 
     public function uploadByteArray(bytes:flash.utils.ByteArray){
-        try {
-            nativeTexture.uploadFromByteArray(bytes, 0);
-        } catch(err:Dynamic){
-            flash.external.ExternalInterface.call('console.log', 'Some error $err');
-        }
+        nativeTexture.uploadFromByteArray(bytes, 0);
     }
 
     public function readPixels (x :Int, y :Int, width :Int, height :Int) :Bytes

@@ -4,6 +4,7 @@
 
 package flambe.platform.flash;
 
+import flash.display3D.Context3DClearMask;
 import flash.Lib;
 import flash.Vector;
 import flash.display.BitmapData;
@@ -162,12 +163,12 @@ class Stage3DBatcher
         // Create a temporary back buffer of the given size, and draw the texture on it
         _context3D.configureBackBuffer(width, height, 2, false);
         _context3D.setRenderToBackBuffer();
-        _context3D.clear(0, 0, 0, 0);
+        _context3D.clear(0, 0, 0, 1, 1, 0, Context3DClearMask.ALL);
         _lastRenderTarget = _currentRenderTarget = null;
         flush();
 
         // Read out the temporary back buffer
-        var pixels = new BitmapData(width, height);
+        var pixels = new BitmapData(width, height, true, 0xffffffff);
         _context3D.drawToBitmapData(pixels);
 
         // Restore the back buffer to its previous state

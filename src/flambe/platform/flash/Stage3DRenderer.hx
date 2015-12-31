@@ -4,6 +4,9 @@
 
 package flambe.platform.flash;
 
+import flash.utils.ByteArray;
+import flash.utils.ByteArray;
+import flash.geom.Rectangle;
 import flash.display3D.Context3D;
 import flash.display.BitmapData;
 import flash.display.Stage3D;
@@ -104,9 +107,9 @@ class Stage3DRenderer
 
     public function saveTexture(texture:Texture):Void {
         #if stage3d_handle_context_loss
-
         var realTexture:Stage3DTexture = cast texture;
-        rootToData.set(realTexture.root, batcher.readPixels(realTexture.root, 0, 0, realTexture.root.width, realTexture.root.height));
+        var bitmapData:BitmapData = batcher.readPixels(realTexture.root, 0, 0, realTexture.root.width, realTexture.root.height);
+        rootToData.set(realTexture.root, bitmapData);
         #end
     }
 
