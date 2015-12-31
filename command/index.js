@@ -253,7 +253,7 @@ exports.build = function (config, platforms, opts) {
     var buildFlash = function () {
         var swf = "build/web/targets/main-flash.swf";
         var flashFlags = swfFlags(false).concat([
-            "-swf-version", SWF_VERSION, "-swf", swf]);
+            "-swf-version", get(config, "swf_version", SWF_VERSION), "-swf", swf]);
 
         return prepareWeb()
             .then(function () {
@@ -266,7 +266,7 @@ exports.build = function (config, platforms, opts) {
     };
 
     var buildAir = function (flags) {
-        var airFlags = swfFlags(true).concat(["-swf-version", get(config, "swf_version", "11.7"), "-D", "air"]);
+        var airFlags = swfFlags(true).concat(["-swf-version", get(config, "swf_version", SWF_VERSION), "-D", "air"]);
 
         wrench.mkdirSyncRecursive(CACHE_DIR + "air");
         return prepareAssets(CACHE_DIR + "air/assets")
@@ -302,7 +302,7 @@ exports.build = function (config, platforms, opts) {
             "  </initialWindow>\n" +
             "  <android>\n" +
             "    <containsVideo>true</containsVideo>\n" +
-            "    <colorDepth>16bit</colorDepth>\n" +
+            "    <colorDepth>32bit</colorDepth>\n" +
             "    <manifestAdditions><![CDATA[\n" +
             get(config, "android AndroidManifest.xml", "<manifest android:installLocation=\"auto\"/>") +
             "    ]]></manifestAdditions>\n" +
