@@ -211,7 +211,7 @@ class Stage3DTextureRoot extends BasicAsset<Stage3DTextureRoot>
 
     override private function onDisposed ()
     {
-        _renderer.batcher.deleteTexture(this);
+        _renderer.deleteTexture(this);
         nativeTexture = null;
         _graphics = null;
     }

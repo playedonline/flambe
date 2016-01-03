@@ -156,6 +156,13 @@ class Stage3DRenderer
 #end
     }
 
+    public function deleteTexture(texture:Stage3DTextureRoot){
+        batcher.deleteTexture(texture);
+#if stage3d_handle_context_loss
+        rootToData.remove(texture);
+#end
+    }
+
     private function onContext3DCreate (event :Event)
     {
         var stage3D :Stage3D = event.target;
