@@ -7,6 +7,7 @@ package flambe.platform.html;
 import js.html.webgl.*;
 
 import haxe.io.Bytes;
+import flambe.display.Texture;
 
 import flambe.asset.AssetEntry;
 import flambe.subsystem.RendererSystem;
@@ -116,6 +117,10 @@ class WebGLRenderer
         batcher.resizeBackbuffer(width, height);
         graphics.onResize(width, height);
     }
+
+	public function saveTexture(texture:Texture):Void {
+
+	}
 
     private function init ()
     {
