@@ -30,6 +30,7 @@ class FlashStage
     public var fullscreenSupported (get, null) :Bool;
 
     public var resize (default, null) :Signal0;
+    public var preResize(default,null):Signal0;
 
     public var nativeStage (default, null) :Stage;
 
@@ -37,6 +38,7 @@ class FlashStage
     {
         this.nativeStage = nativeStage;
         resize = new Signal0();
+        preResize = new Signal0();
 
         nativeStage.scaleMode = NO_SCALE;
         nativeStage.frameRate = 60;
@@ -125,6 +127,7 @@ class FlashStage
 #if flash
         if (!FlashPlatform.instance.getRenderer().canRender()) return;
 #end
+        preResize.emit();
         resize.emit();
     }
 

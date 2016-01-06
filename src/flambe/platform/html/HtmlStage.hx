@@ -21,6 +21,7 @@ class HtmlStage
     public var fullscreen (default, null) :Value<Bool>;
     public var fullscreenSupported (get, null) :Bool;
 
+    public var preResize(default,null):Signal0;
     public var resize (default, null) :Signal0;
 
     public var scaleFactor (default, null) :Float;
@@ -29,6 +30,7 @@ class HtmlStage
     {
         _canvas = canvas;
         resize = new Signal0();
+        preResize = new Signal0();
 
 #if flambe_disable_html_retina
         scaleFactor = 1;
@@ -146,6 +148,7 @@ class HtmlStage
 
     private function onWindowResize (_)
     {
+        preResize.emit();
         // Resize the canvas to match its container's bounds
         var container = _canvas.parentElement;
         var rect = container.getBoundingClientRect();

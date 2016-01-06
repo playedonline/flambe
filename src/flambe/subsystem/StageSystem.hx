@@ -44,6 +44,7 @@ interface StageSystem
      * Emitted after the stage size changes, such as when the window is resized or the device is
      * rotated.
      */
+    var preResize(default,null):Signal0;
     var resize (default, null) :Signal0;
 
     /**
