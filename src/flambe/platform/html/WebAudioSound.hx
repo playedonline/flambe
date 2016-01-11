@@ -15,6 +15,7 @@ class WebAudioSound extends BasicAsset<WebAudioSound>
     implements Sound
 {
     public static var supported (get, null) :Bool;
+    public static var disableWebAudioSound:Bool = false;
 
     /**
      * The shared AudioContext.
@@ -69,6 +70,9 @@ class WebAudioSound extends BasicAsset<WebAudioSound>
 
     private static function get_supported () :Bool
     {
+        if(disableWebAudioSound){
+            return false;
+        }
         if (_detectSupport) {
             _detectSupport = false;
 
