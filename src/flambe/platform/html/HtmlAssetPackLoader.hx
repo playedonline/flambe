@@ -300,8 +300,10 @@ class HtmlAssetPackLoader extends BasicAssetPackLoader
 #else
         var blacklist = ~/\b(iPhone|iPod|iPad|Android|Windows Phone)\b/;
 #end
+        var crosswalk = ~/\bCrosswalk\b/;
+
         var userAgent = Browser.navigator.userAgent;
-        if (!WebAudioSound.supported && blacklist.match(userAgent)) {
+        if (!WebAudioSound.supported && blacklist.match(userAgent) && !crosswalk.match(userAgent)) {
             Log.warn("HTML5 audio is blacklisted for this browser", ["userAgent", userAgent]);
             return [];
         }
